@@ -4,17 +4,25 @@
 */
 
 #include <iostream>
+#include<fstream>
 using namespace std;
 int main()
 {
     int startingTimeH = 0, startingTimeM = 0, endingTimeH = 0, endingTimeM = 0;
     int totalHours = 0, totalMinutes = 0, differenceH = 0, differenceM = 0;
     int excessMinutes = 0;
+    int shift_number = 0;
     string amPmStart;
     string amPmEnd;
     string calcAgain = "y";
+    ofstream fileout;
+    fileout.open("shiftlog.txt");
+
     while (calcAgain == "y")
     {
+        shift_number++;
+        fileout << "SHIFT " << shift_number << " - ";
+        cout << "Shift " << shift_number << ":" << endl;
         cout << "Enter starting time hour: ";
         cin >> startingTimeH;
         cout << "Enter starting time minute: ";
@@ -32,14 +40,14 @@ int main()
             if (startingTimeM > endingTimeM)
             {
                 differenceH = endingTimeH;
-                totalHours = differenceH + totalHours - 1;
+                totalHours += differenceH;
                 differenceM = 60 + endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
             else if (startingTimeM <= endingTimeM)
             {
                 differenceH = endingTimeH;
-                totalHours = differenceH + totalHours;
+                totalHours += differenceH;
                 differenceM = endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
@@ -48,15 +56,15 @@ int main()
         {
             if (startingTimeM > endingTimeM)
             {
-                differenceH = endingTimeH - startingTimeH;
-                totalHours = differenceH + totalHours - 1;
+                differenceH = endingTimeH - startingTimeH - 1;
+                totalHours += differenceH;
                 differenceM = 60 + endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
             else if (startingTimeM <= endingTimeM)
             {
                 differenceH = endingTimeH - startingTimeH;
-                totalHours = differenceH + totalHours;
+                totalHours += differenceH;
                 differenceM = endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
@@ -65,32 +73,46 @@ int main()
         {
             if (startingTimeM > endingTimeM)
             {
-                differenceH = endingTimeH + 12 - startingTimeH;
-                totalHours = differenceH + totalHours - 1;
+                if (endingTimeH == 12)
+                {
+                    differenceH = endingTimeH - startingTimeH - 1;
+                }
+                else
+                {
+                    differenceH = endingTimeH + 12 - startingTimeH - 1;
+                }
+                totalHours += differenceH;
                 differenceM = 60 + endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
             else if (startingTimeM <= endingTimeM)
             {
-                differenceH = endingTimeH + 12 - startingTimeH;
-                totalHours = differenceH + totalHours;
+                if (endingTimeH == 12)
+                {
+                    differenceH = endingTimeH - startingTimeH;
+                }
+                else
+                {
+                    differenceH = endingTimeH + 12 - startingTimeH;
+                }
+                totalHours += differenceH;
                 differenceM = endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
         }
-        else if (amPmStart == "am" && amPmEnd == "pm")
+        else if (amPmStart == "pm" && amPmEnd == "am")
         {
             if (startingTimeM > endingTimeM)
             {
-                differenceH = endingTimeH - startingTimeH;
-                totalHours = differenceH + totalHours - 1;
+                differenceH = endingTimeH - startingTimeH - 1;
+                totalHours += differenceH;
                 differenceM = 60 + endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
             else if (startingTimeM <= endingTimeM)
             {
                 differenceH = endingTimeH - startingTimeH;
-                totalHours = differenceH + totalHours;
+                totalHours += differenceH;
                 differenceM = endingTimeM - startingTimeM;
                 totalMinutes += differenceM;
             }
@@ -98,38 +120,48 @@ int main()
         excessMinutes = totalMinutes / 60;
         totalHours += excessMinutes;
         totalMinutes %= 60;
-        if (totalMinutes < 10)
+        cout << endl;
+        if (differenceM < 10)
         {
-            cout << "Time: " << totalHours << ":0" << totalMinutes << endl;
+            cout << "This shift: " << differenceH << ":0" << differenceM << endl;
+            fileout << differenceH << ":0" << differenceM << endl;
         }
         else
         {
-            cout << "Time: " << totalHours << ":" << totalMinutes << endl;
+            cout << "This shift: " << differenceH << ":" << differenceM << endl;
+            fileout << differenceH << ":" << differenceM << endl;
+        }
+        if (totalMinutes < 10)
+        {
+            cout << "Total time: " << totalHours << ":0" << totalMinutes << endl;
+        }
+        else
+        {
+            cout << "Total time: " << totalHours << ":" << totalMinutes << endl;
+        }
+        if (startingTimeM < 10)
+        {
+            fileout << "Clocked in - " << startingTimeH << ":0" << startingTimeM << amPmStart << endl;
+            fileout << "Clocked out - " << endingTimeH << ":0" << endingTimeM << amPmEnd << endl << endl;
+        }
+        else
+        {
+            fileout << "Clocked in - " << startingTimeH << ":" << startingTimeM << amPmStart << endl;
+            fileout << "Clocked out - " << endingTimeH << ":" << endingTimeM << amPmEnd << endl << endl;
         }
         cout << "Add another shift? (y/n) ";
         cin >> calcAgain;
-        /* while (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Add another shift? (y/n) ";
-            cin >> calcAgain;
-        } */
+        cout << endl;
     }
     if (totalMinutes < 10)
     {
-        cout << "Total time: " << totalHours << ":0" << totalMinutes << endl;
+        cout << "Grand total: " << totalHours << ":0" << totalMinutes << endl;
+        fileout << "Grand total: " << totalHours << ":0" << totalMinutes << endl;
     }
     else
     {
-        cout << "Total time: " << totalHours << ":" << totalMinutes << endl;
+        cout << "Grand total: " << totalHours << ":" << totalMinutes << endl;
+        fileout << "Grand total: " << totalHours << ":" << totalMinutes << endl;
     }
+    fileout.close();
 }
-
-//Feb 15-30: 36:15 + time and a half pay
-//5:07 + 4:35 + 5:10 + 4:13 + 1:33 + 5:14 + 4:50 + 5:29
-
-//51H march beginnig
-// 35:30 march end
-
-// i worked 64:15 april pt 1 LUl
